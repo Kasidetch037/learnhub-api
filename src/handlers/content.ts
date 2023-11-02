@@ -13,7 +13,15 @@ export default class ContentHandler implements IContentHandler {
     this.repo = repo;
   }
 
-  public create: RequestHandler<
+  getAll: RequestHandler<{}, { data: IContentDto[] }> = async (req, res) => {
+    const contents = await this.repo.getAll();
+
+    const contentListDto = contents.map<IContentDto>(mapToDto);
+
+    return res.status(200).json({ data: contentListDto }).end();
+  };
+
+  create: RequestHandler<
     {},
     IContentDto | IErrorDto,
     ICreateContentDto,
