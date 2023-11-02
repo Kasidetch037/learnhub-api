@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import express from "express";
 import { IUserHandler } from "./handlers";
 import UserHandler from "./handlers/user";
+import JWTMiddleware from "./middleware/jwt";
 import { IUserRepository } from "./repositories";
 import UserRepository from "./repositories/user";
 
@@ -13,9 +14,12 @@ const userRepo: IUserRepository = new UserRepository(clnt);
 
 const userHandler: IUserHandler = new UserHandler(userRepo);
 
+const jwtMiddleware = new JWTMiddleware();
+
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", jwtMiddleware.auth, (req, res) => {
+  console.log(res.locals);
   return res.status(200).send("Welcome to LearnHub").end();
 });
 
