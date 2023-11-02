@@ -25,6 +25,12 @@ app.use("/user", userRouter);
 
 userRouter.post("/", userHandler.registration);
 
+const authRouter = express.Router();
+
+app.use("/auth", authRouter);
+
+authRouter.post("/login", userHandler.login);
+
 app.listen(PORT, () => {
   console.log(`LearnHub API is up at ${PORT}`);
 });
