@@ -6,6 +6,7 @@ import { JWT_SECRET } from "../const";
 import { ICredentialDto, ILoginDto } from "../dto/auth";
 import { IErrorDto } from "../dto/error";
 import { ICreateUserDto, IUserDto } from "../dto/user";
+import { AuthStatus } from "../middleware/jwt";
 import { IUserRepository } from "../repositories";
 import { hashPassword, verifyPassword } from "../utils/bcrypt";
 
@@ -15,6 +16,33 @@ export default class UserHandler implements IUserHandler {
   constructor(repo: IUserRepository) {
     this.repo = repo;
   }
+  public selfcheck: RequestHandler<
+    {},
+    IUserDto | IErrorDto,
+    unknown,
+    unknown,
+    AuthStatus
+  > = async (req, res) => {
+    try {
+      const { registeredAt, ...others } = await this.repo.findById(
+        res.locals.user.id
+      );
+
+      return res
+        .status(200)
+        .json({
+          ...others,
+          registeredAt: registeredAt.toISOString(),
+        })
+        .end();
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  };
 
   public login: RequestHandler<{}, ICredentialDto | IErrorDto, ILoginDto> =
     async (req, res) => {
