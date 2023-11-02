@@ -1,10 +1,14 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
+import { sign } from "jsonwebtoken";
 import { IUserHandler } from ".";
+import { JWT_SECRET } from "../const";
+import { ICredentialDto, ILoginDto } from "../dto/auth";
 import { IErrorDto } from "../dto/error";
 import { ICreateUserDto, IUserDto } from "../dto/user";
+import { AuthStatus } from "../middleware/jwt";
 import { IUserRepository } from "../repositories";
-import { hashPassword } from "../utils/bcrypt";
+import { hashPassword, verifyPassword } from "../utils/bcrypt";
 
 export default class UserHandler implements IUserHandler {
   private repo: IUserRepository;
@@ -12,6 +16,63 @@ export default class UserHandler implements IUserHandler {
   constructor(repo: IUserRepository) {
     this.repo = repo;
   }
+  public selfcheck: RequestHandler<
+    {},
+    IUserDto | IErrorDto,
+    unknown,
+    unknown,
+    AuthStatus
+  > = async (req, res) => {
+    try {
+      const { registeredAt, ...others } = await this.repo.findById(
+        res.locals.user.id
+      );
+
+      return res
+        .status(200)
+        .json({
+          ...others,
+          registeredAt: registeredAt.toISOString(),
+        })
+        .end();
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  };
+
+  public login: RequestHandler<{}, ICredentialDto | IErrorDto, ILoginDto> =
+    async (req, res) => {
+      const { username, password: plainPassword } = req.body;
+      try {
+        const { password, id } = await this.repo.findByUsername(username);
+
+        if (!verifyPassword(plainPassword, password))
+          throw new Error("Invalid username or password");
+
+        const accessToken = sign({ id }, JWT_SECRET, {
+          algorithm: "HS512",
+          expiresIn: "12h",
+          issuer: "learnhub-api",
+          subject: "user-credential",
+        });
+
+        return res
+          .status(200)
+          .json({
+            accessToken,
+          })
+          .end();
+      } catch (error) {
+        return res
+          .status(401)
+          .json({ message: "Invalid username or password" })
+          .end();
+      }
+    };
 
   public registration: RequestHandler<
     {},
