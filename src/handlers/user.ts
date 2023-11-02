@@ -38,9 +38,12 @@ export default class UserHandler implements IUserHandler {
     } catch (error) {
       console.error(error);
 
-      return res.status(500).send({
-        message: "Internal Server Error",
-      });
+      return res
+        .status(500)
+        .send({
+          message: "Internal Server Error",
+        })
+        .end();
     }
   };
 
@@ -82,11 +85,11 @@ export default class UserHandler implements IUserHandler {
     const { name, username, password: plainPassword } = req.body;
 
     if (typeof name !== "string" || name.length === 0)
-      return res.status(400).json({ message: "name is invalid" });
+      return res.status(400).json({ message: "name is invalid" }).end();
     if (typeof username !== "string" || username.length === 0)
-      return res.status(400).json({ message: "username is invalid" });
+      return res.status(400).json({ message: "username is invalid" }).end();
     if (typeof plainPassword !== "string" || plainPassword.length < 5)
-      return res.status(400).json({ message: "password is invalid" });
+      return res.status(400).json({ message: "password is invalid" }).end();
 
     try {
       const {
@@ -114,13 +117,19 @@ export default class UserHandler implements IUserHandler {
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2002"
       ) {
-        return res.status(500).json({
-          message: `name is invalid`,
-        });
+        return res
+          .status(500)
+          .json({
+            message: `name is invalid`,
+          })
+          .end();
       }
-      return res.status(500).json({
-        message: `Internal Server Error`,
-      });
+      return res
+        .status(500)
+        .json({
+          message: `Internal Server Error`,
+        })
+        .end();
     }
   };
 }
