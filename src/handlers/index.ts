@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { ICredentialDto, ILoginDto } from "../dto/auth";
-import { IContentDto, ICreateContentDto } from "../dto/content";
+import { IContentDto, IContentsDto, ICreateContentDto } from "../dto/content";
 import { IErrorDto } from "../dto/error";
 import { ICreateUserDto, IUserDto } from "../dto/user";
 import { AuthStatus } from "../middleware/jwt";
@@ -25,5 +25,5 @@ export interface IContentHandler {
     undefined,
     AuthStatus
   >;
-  getAll: RequestHandler<{}, { data: IContentDto[] }>;
+  getAll: RequestHandler<{}, IContentsDto>;
 }

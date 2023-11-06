@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { IContentHandler } from ".";
-import { IContentDto, ICreateContentDto } from "../dto/content";
+import { IContentDto, IContentsDto, ICreateContentDto } from "../dto/content";
 import { IErrorDto } from "../dto/error";
 import { AuthStatus } from "../middleware/jwt";
 import { IContentRepository } from "../repositories";
@@ -13,7 +13,7 @@ export default class ContentHandler implements IContentHandler {
     this.repo = repo;
   }
 
-  getAll: RequestHandler<{}, { data: IContentDto[] }> = async (req, res) => {
+  getAll: RequestHandler<{}, IContentsDto> = async (req, res) => {
     const contents = await this.repo.getAll();
 
     const contentListDto = contents.map<IContentDto>(mapToDto);

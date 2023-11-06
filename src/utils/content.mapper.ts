@@ -1,7 +1,7 @@
 import { IContentDto } from "../dto/content";
 import { IContent } from "../repositories";
 
-export default ({
+const mapToDto = ({
   User: { registeredAt, ...userInfo },
   createdAt,
   updatedAt,
@@ -15,3 +15,5 @@ export default ({
   createdAt: createdAt.toISOString(),
   updatedAt: updatedAt.toISOString(),
 });
+
+export default mapToDto;

@@ -13,3 +13,7 @@ export interface IContentDto
   updatedAt: string;
   postedBy: IUserDto;
 }
+
+export interface IContentsDto {
+  data: IContentDto[];
+}
