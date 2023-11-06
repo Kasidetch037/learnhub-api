@@ -2,7 +2,12 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
 import { IContentHandler, ID } from ".";
 import { REQUIRED_RECORD_NOT_FOUND } from "../const";
-import { IContentDto, IContentsDto, ICreateContentDto } from "../dto/content";
+import {
+  IContentDto,
+  IContentsDto,
+  ICreateContentDto,
+  IUpdateContentDto,
+} from "../dto/content";
 import { IErrorDto } from "../dto/error";
 import { AuthStatus } from "../middleware/jwt";
 import { IContentRepository } from "../repositories";
@@ -124,5 +129,34 @@ export default class ContentHandler implements IContentHandler {
 
       return res.status(500).send({ message: "Internal Server Error" }).end();
     }
+  };
+
+  updateById: RequestHandler<
+    ID,
+    IContentDto | IErrorDto,
+    IUpdateContentDto,
+    undefined,
+    AuthStatus
+  > = async (req, res) => {
+    const { id } = req.params;
+    const { comment, rating } = req.body;
+
+    const numericId = Number(id);
+
+    if (isNaN(numericId))
+      return res.status(400).json({ message: "id is invalid" }).end();
+
+    const {
+      User: { id: ownerId },
+    } = await this.repo.getById(numericId);
+
+    if (ownerId !== res.locals.user.id)
+      return res
+        .status(403)
+        .json({ message: "Requested content is forbidden" })
+        .end();
+
+    const content = await this.repo.updateById(numericId, { comment, rating });
+    return res.status(200).json(mapToDto(content)).end();
   };
 }
