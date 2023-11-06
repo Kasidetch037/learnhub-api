@@ -132,4 +132,41 @@ export default class UserHandler implements IUserHandler {
         .end();
     }
   };
+
+  public getByUsername: RequestHandler<
+    { username: string },
+    IUserDto | IErrorDto
+  > = async (req, res) => {
+    try {
+      const { password, registeredAt, ...userInfo } =
+        await this.repo.findByUsername(req.params.username);
+
+      return res
+        .status(200)
+        .json({
+          ...userInfo,
+          registeredAt: registeredAt.toISOString(),
+        })
+        .end();
+    } catch (error) {
+      console.error(error);
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      )
+        return res
+          .status(404)
+          .json({
+            message: "No user found",
+          })
+          .end();
+
+      return res
+        .status(500)
+        .json({
+          message: "Internal Server Error",
+        })
+        .end();
+    }
+  };
 }
