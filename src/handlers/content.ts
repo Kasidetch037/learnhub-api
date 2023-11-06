@@ -60,4 +60,24 @@ export default class ContentHandler implements IContentHandler {
       return res.status(500).json({ message: "Internal Server Error" }).end();
     }
   };
+
+  getById: RequestHandler<{ id: string }, IContentDto | IErrorDto> = async (
+    req,
+    res
+  ) => {
+    const { id } = req.params;
+    const numericId = Number(id);
+
+    if (isNaN(numericId))
+      return res
+        .status(400)
+        .json({
+          message: "id is invalid",
+        })
+        .end();
+
+    const content = await this.repo.getById(numericId);
+
+    return res.status(200).json(mapToDto(content)).end();
+  };
 }

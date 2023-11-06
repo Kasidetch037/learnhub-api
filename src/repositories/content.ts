@@ -33,4 +33,15 @@ export default class ContentRepository implements IContentRepository {
       },
     });
   }
+
+  getById(id: number): Promise<IContent> {
+    return this.prisma.content.findUniqueOrThrow({
+      where: { id },
+      include: {
+        User: {
+          select: DEFAULT_USER_SELECT,
+        },
+      },
+    });
+  }
 }
