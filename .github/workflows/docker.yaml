@@ -1,0 +1,27 @@
+name: Docker build image
+
+on: push
+
+jobs:
+  hello-world:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo hello-world
+        run: echo "Hello, world"
+      - name: Where
+        run: pwd
+      - name: Check out
+        run: action/checkout@v3
+      - name: Login to Docker hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.TOKEN }}
+      - name: Set up docker buildx
+        run: docker/setup-buildx-action@v3
+      - name: Build and push
+        run: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: ${{ secret.DOCKERHUB_USERNAME }}/academy-learnhub-api:${{ steps.params.outputs.SHORTENED_SHA}}

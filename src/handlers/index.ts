@@ -9,10 +9,12 @@ import {
 import { IErrorDto } from "../dto/error";
 import { ICreateUserDto, IUserDto } from "../dto/user";
 import { AuthStatus } from "../middleware/jwt";
+import { IMessageDto } from "../dto/message";
 
 export interface IUserHandler {
   registration: RequestHandler<{}, IUserDto | IErrorDto, ICreateUserDto>;
   login: RequestHandler<{}, ICredentialDto | IErrorDto, ILoginDto>;
+  logout: RequestHandler<{}, IMessageDto, undefined, undefined, AuthStatus>;
   getPersonalInfo: RequestHandler<
     {},
     IUserDto | IErrorDto,
@@ -20,7 +22,7 @@ export interface IUserHandler {
     unknown,
     AuthStatus
   >;
-  getByUsername: RequestHandler<{ username: string }, IUserDto | IErrorDto>;
+  getInfoByUsername: RequestHandler<{ username: string }, IUserDto | IErrorDto>;
 }
 
 export interface ID {
